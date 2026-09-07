@@ -1,28 +1,25 @@
 <script setup>
 
 import { RouterView } from 'vue-router'
-import { useMealsStore } from '@/stores/meals'
-
-const store = useMealsStore()
-
-// datos de prueba
-store.addMeal({ name: 'Lentejas', day: 'Lunes', mealTime: 'Comida' })
-store.addMeal({ name: 'Tortilla', day: 'Lunes', mealTime: 'Cena' })
-store.addMeal({ name: 'Pollo al horno', day: 'Miércoles', mealTime: 'Comida' })
 
 </script>
 
-
-
 <template>
+ 
+  <div class="min-h-screen bg-slate-50">                                 <!-- min-h-screen: ocupa como minimo el alto de la ventana para que el fondo gris cubra toda la pantalla aunque haya poco contenido -->
 
-<h1 class="text-2xl font-bold">Prueba del store</h1>
-  <!-- <pre> respeta saltos de línea y espacios.
-       JSON.stringify con el 2 final formatea el objeto indentado.
-       Es la forma más rápida de inspeccionar un estado mientras desarrollas. -->
-  <pre class="text-sm">{{ JSON.stringify(store.mealsByDay, null, 2) }}</pre>
-  <RouterView />
+    
+    <header class="border-b border-slate-200 bg-white">                  <!-- La cabecera está FUERA del RouterView: se queda fija al navegar entre vistas -->
+    
+      <div class="mx-auto max-w-6xl px-4 py-4">                          <!-- mx-auto + max-w-6xl: centra el contenido y le pone un ancho máximo para que no se estire en pantallas grandes -->
+        <h1 class="text-xl font-bold text-slate-800">🍽️ Meal Planner</h1>
+      </div>
+    </header>
 
+    <main class="mx-auto max-w-6xl px-4 py-6">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped></style>
