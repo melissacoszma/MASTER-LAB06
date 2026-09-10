@@ -1,39 +1,44 @@
 <script setup>
 
+import { ref } from 'vue'
 import { useMealsStore } from '@/stores/meals'
 import { DAYS } from '@/stores/meals'
 import DayCard from '@/components/DayCard.vue'
+import MealForm from '@/components/MealForm.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const store = useMealsStore()
 
-// --- DATOS DE PRUEBA ---------------
-// El if es importante: al navegar a favoritos y volver, esta vista se
-// desmonta y se vuelve a montar, así que este código se ejecutaría otra vez
-// y verías los platos duplicados. Comprobando que el plan está vacío
-// solo siembra la primera vez.
-if (store.totalMeals === 0) {
-  store.addMeal({ name: 'Lentejas', day: 'Lunes', mealTime: 'Comida' })
-  store.addMeal({ name: 'Tortilla', day: 'Lunes', mealTime: 'Cena' })
-  store.addMeal({ name: 'Pollo al horno', day: 'Miércoles', mealTime: 'Comida' })
-}
+const showConfirm = ref(false)
 
+function confirmClear() {
+  store.clearPlan()
+  showConfirm.value = false
+}
 
 </script>
 
 <template>
   <section>
-    <h2 class="mb-4 text-lg font-semibold text-slate-700">Plan semanal</h2>
+    <MealForm /> <!-- no necesita props, con pinia habla directamente con el store para añadir el plato y la vista se repinta sola, sin store necesitaríamos eventos y guardar estados para pasarlos -->
 
-  
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-700">Plan semanal</h2>
 
-      <!-- Recorremos la constante DAYS, no las claves del objeto.
-           Así el orden de la semana está garantizado
+      <!-- :disabled con dos puntos porque el valor es una expresión, deshabilitamos el botón cuando no hay nada que limpiar
+           disabled:opacity-50 es una variante de Tailwind que aplica ese estilo solo cuando el elemento está deshabilitado. -->
 
-           :key le da a Vue una identidad estable para cada elemento,
-           y así al añadir o quitar cosas reutiliza los nodos correctos
-           en lugar de repintar la lista entera. -->
-           
+      <button
+        type="button"
+        :disabled="store.totalMeals === 0"
+        class="rounded border border-red-300 px-3 py-1.5 text-sm text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+        @click="showConfirm = true"
+      >
+        Limpiar plan
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">   
       <DayCard
         v-for="day in DAYS"
         :key="day"
@@ -41,5 +46,16 @@ if (store.totalMeals === 0) {
         :meals="store.mealsByDay[day]"
       />
     </div>
+
+    <!-- datos abajo, eventos arriba -->
+    <ConfirmDialog
+      :open="showConfirm"
+      title="¿Limpiar el plan semanal?"
+      message="Se eliminarán todos los platos planificados. Tus favoritos no se verán afectados."
+      confirm-label="Sí, limpiar"
+      @confirm="confirmClear"
+      @cancel="showConfirm = false"
+     />
+
   </section>
 </template>
